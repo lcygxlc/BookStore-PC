@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--
+	namespace：必须与对应的接口全类名一致
+	id:必须与对应接口的某个对应的方法名一致
+ -->
+<mapper namespace="cn.edu.neu.mapper.AddressMapper">
+
+    <!-- ************************* 9.9 ********************* -->
+    <update id="unsetDefaultAddress">
+        UPDATE t_address
+        SET addr_isdefault = 0
+        WHERE
+            addr_isdefault = 1
+    </update>
+    <update id="setDefaultAddress" parameterType="String">
+        UPDATE t_address
+        SET addr_isdefault = 1
+        WHERE
+            addr_id = #{addrId}
+    </update>
+    <!-- *************************************************** -->
+
+
+
+    <!-- ************************* 9.7 ********************* -->
+    <delete id="delAddress" parameterType="java.lang.String">
+        DELETE FROM t_address
+        WHERE addr_id = #{addrId}
+    </delete>
+    <!-- *************************************************** -->
+
+    <!-- ************************* 8.6 ********************* -->
+    <select id="findAddrByUserId" resultType="Address">
+        SELECT
+            addr_id addrId,
+            user_id userId,
+            addr_province addrProvince,
+            addr_city addrCity,
+            addr_area addrArea,
+            addr_content addrContent,
+            addr_receiver addrReceiver,
+            addr_tel addrTel,
+            addr_isdefault addrIsdefault
+        FROM
+            t_address
+        WHERE user_id=#{loginUserId}
+    </select>
+    <!-- ***************************************************** -->
+
+
+    <!-- ************************* 8.4 ********************* -->
+    <insert id="saveAddress" parameterType="Address">
+        <selectKey keyProperty="addrId" order="AFTER" resultType="java.lang.Integer">
+            SELECT LAST_INSERT_ID() as addrId
+        </selectKey>
+        INSERT INTO t_address
+        VALUES(NULL,#{userId},#{addrProvince},#{addrCity},#{addrArea},
+        #{addrContent},#{addrReceiver},#{addrTel},0)
+    </insert>
+
+    <update id="updateAddress" parameterType="Address">
+        UPDATE t_address
+        SET addr_province = #{addrProvince},addr_city=#{addrCity},
+            addr_area=#{addrArea},addr_content = #{addrContent},
+            addr_receiver=#{addrReceiver},addr_tel=#{addrTel}
+        WHERE
+            addr_id = #{addrId}
+    </update>
+    <!-- ***************************************************** -->
+
+</mapper>

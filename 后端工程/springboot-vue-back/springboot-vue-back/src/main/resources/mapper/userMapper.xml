@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace：必须与对应的接口全类名一致 id:必须与对应接口的某个对应的方法名一致 #{}:占位符 -->
+<mapper namespace="cn.edu.neu.mapper.UserMapper">
+
+
+	<!-- ******************* 9.3 ******************* -->
+	<update id="update" parameterType="User">
+		update t_user set
+						  user_name=#{userName},user_age=#{userAge},user_pass=#{userPass},user_email=#{userEmail},user_sex=#{userSex} where
+			user_id=#{userId}
+	</update>
+
+	<!-- mybsits_config中配置的alias类别名,也可直接配置resultType为类路径 -->
+	<select id="findById" parameterType="int" resultType="User">
+		select
+			user_id userId,user_name userName,user_age userAge,user_pass userPass
+		from t_user where user_id=#{userId}
+	</select>
+	<!-- ************************************** -->
+
+	<!-- ******************* 5.17 5.19 ******************* -->
+	<select id="checkUser" parameterType="User" resultType="User">
+		select
+			user_id userId,user_name userName,user_age userAge,user_sex userSex,user_email userEmail from t_user where
+			user_name=#{userName} and user_pass=#{userPass}
+	</select>
+
+	<select id="checkUserName" parameterType="User" resultType="int">
+		select count(*) from t_user where user_name=#{userName}
+	</select>
+
+	<insert id="regUser" parameterType="User">
+		<!-- mysql插入数据后，获取id，将新插入记录的id值 放入User对象id属性中 -->
+		<selectKey keyProperty="userId" resultType="int" order="AFTER">
+			select
+			last_insert_id() as userId
+		</selectKey>
+
+		insert into t_user
+		values(null,#{userName},#{userPass},#{userAge},#{userSex},#{userEmail},0)
+	</insert>
+	<!-- ************************************** -->
+
+</mapper>

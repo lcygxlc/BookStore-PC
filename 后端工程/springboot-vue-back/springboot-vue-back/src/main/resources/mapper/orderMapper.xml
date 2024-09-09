@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cn.edu.neu.mapper.OrderMapper">
+
+    <!-- ******************* 8-8 ******************* -->
+    <insert id="saveOrder" parameterType="Order">
+        <selectKey keyProperty="orderId" resultType="int" order="AFTER">
+            SELECT last_insert_id() as orderId
+        </selectKey>
+        INSERT INTO t_order
+        VALUES
+        (NULL,#{orderCode},#{userId},0,#{orderAddress},
+        #{orderPostalfee},curdate(),'','')
+    </insert>
+
+    <insert id="saveOrderDetail">
+        INSERT INTO t_orderdetail
+        VALUES
+            (NULL,#{orderId},#{goodsId},#{odetailName},
+             #{odetailPrice},
+             #{odetailNum},#{odetailPic})
+    </insert>
+    <!-- ************************************** -->
+
+
+    <!-- ******************* 8-11 ******************* -->
+    <resultMap id="OrderResultMap" type="Order">
+        <id property="orderId" column="orderId" />
+        <result property="orderCode" column="orderCode" />
+
+        <result property="userId" column="userId" />
+        <result property="orderDate" column="orderDate" />
+
+        <result property="orderStatus" column="orderStatus" />
+        <result property="orderAddress" column="orderAddress" />
+        <result property="orderPostalfee" column="orderPostalfee" />
+        <result property="orderPostcode" column="orderPostcode" />
+        <result property="orderPostname" column="orderPostname" />
+        <result property="userName" column="userName" />
+
+        <!-- Order与OrderDetail：一对多关系 使用collection配置-->
+        <collection property="odetails" ofType="OrderDetail">
+            <id property="odetailId" column="odetailId" />
+            <result property="goodsId" column="goodsId" />
+            <result property="odetailName" column="odetailName" />
+            <result property="odetailPrice" column="odetailPrice" />
+            <result property="odetailNum" column="odetailNum" />
+            <result property="odetailPic" column="odetailPic" />
+        </collection>
+
+    </resultMap>
+
+    <select id="findOrderDetailById" parameterType="Integer" resultMap="OrderResultMap">
+        SELECT
+            o.order_id orderId,
+            o.order_code orderCode,
+            o.user_id userId,
+            o.order_status orderStatus,
+            o.order_address orderAddress,
+            o.order_postalfee orderPostalfee,
+            o.order_date orderDate,
+            o.order_postcode orderPostcode,
+            o.order_postname orderPostname,
+            od.odetail_id odetailId,
+            od.goods_id goodsId,
+            od.odetail_name odetailName,
+            od.odetail_price odetailPrice,
+            od.odetail_num odetailNum,
+            od.odetail_pic odetailPic
+        FROM t_order o
+                 JOIN t_orderdetail od ON o.order_id =
+                                          od.order_id
+        WHERE
+            o.order_id = #{orderId}
+        ORDER BY
+            odetail_id
+    </select>
+    <!-- ************************************** -->
+    <!-- ******************* 8-18 ******************* -->
+    <select id="findMyOrders" resultMap="OrderResultMap">
+        SELECT
+        o.order_id orderId,
+        order_code orderCode,
+        user_id userId,
+        order_status orderStatus,
+        order_address orderAddress,
+        order_postalfee
+        orderPostalfee,
+        order_date orderDate,
+        order_postcode orderPostcode,
+        order_postname orderPostname,
+        odetail_id odetailId,
+        goods_id goodsId,
+        odetail_name odetailName,
+        odetail_price odetailPrice,
+        odetail_num odetailNum,
+        odetail_pic odetailPic
+        FROM
+        t_order o
+        JOIN t_orderdetail od ON
+        o.order_id = od.order_id
+        WHERE
+        user_id = #{userId}
+        <if test="status!=null">
+            AND order_status = #{status}
+        </if>
+        ORDER BY
+        order_code DESC
+    </select>
+    <!-- ************************************** -->
+
+</mapper>
